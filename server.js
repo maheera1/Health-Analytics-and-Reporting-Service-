@@ -2,9 +2,14 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-import exampleRouter from './routes/exampleRoute.js';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
+
+//routes
+import exampleRouter from './routes/exampleRoute.js';
+import reportRoutes from "./routes/reportRoute.js"
+
+
 
 dotenv.config();
 
@@ -50,6 +55,7 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // routes
 app.use('/api', exampleRouter);
+app.use('/api', reportRoutes)
 
 
 
