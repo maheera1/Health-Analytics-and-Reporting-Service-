@@ -1,5 +1,6 @@
+import PatientReport from "../models/PatientReport.schema.js";
 
-//tentative report controllers (finalized with schema creation)
+//tentative report controllers (fields yet to finalized)
 export const getAllReports = asyncHandler(async (req, res) => {
     const reports = await PatientReport.find();
     if (!reports) {
@@ -20,6 +21,7 @@ export const getReportById = asyncHandler(async (req, res) => {
   
 
 export const createReport = asyncHandler(async (req, res) => {
+  //after fields finalization we can further specify new report structure
     const report = await PatientReport.create(req.body);
     res.status(201).json({ success: true, data: report });
   });
@@ -37,6 +39,7 @@ export const deleteReport = asyncHandler(async (req, res) => {
   
 
 export const updateReport = asyncHandler(async (req, res) => {
+  //yet to finalized
     const report = await PatientReport.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true,
