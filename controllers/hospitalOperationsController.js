@@ -81,7 +81,14 @@ export const createHospitalOperationsReport = asyncHandler(async (req, res) => {
 // update existing
 export const updateHospitalOperationsReport = asyncHandler(async (req, res) => {
   const { id } = req.params;
-  const { department, metrics, staffing, resources, analysis } = req.body;
+  const {
+    description,
+    department,
+    metrics,
+    staffing,
+    resources,
+    analysis
+   } = req.body;
 
   // does report with given id exist?
   const report = await HospitalOperationsReport.findById(id);
@@ -90,6 +97,7 @@ export const updateHospitalOperationsReport = asyncHandler(async (req, res) => {
   }
 
   // update fields
+  report.description = description || report.description;
   report.department = department || report.department;
   report.metrics = metrics || report.metrics;
   report.staffing = staffing || report.staffing;
