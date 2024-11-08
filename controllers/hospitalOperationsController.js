@@ -26,7 +26,6 @@ export const getHospitalOperationsReportById = asyncHandler(async (req, res) => 
 // create new
 export const createHospitalOperationsReport = asyncHandler(async (req, res) => {
   const {
-    reportId,
     reportType,
     title,
     description,
@@ -43,7 +42,6 @@ export const createHospitalOperationsReport = asyncHandler(async (req, res) => {
   console.log("working!!!")
   // Validate required fields
   if (
-    !reportId ||
     !reportType ||
     !title ||
     !dateRange ||
@@ -62,7 +60,6 @@ export const createHospitalOperationsReport = asyncHandler(async (req, res) => {
 
   // Create a new report using both base schema and specific schema fields
   const newReport = await HospitalOperationsReport.create({
-    reportId,
     reportType,
     title,
     description,

@@ -2,12 +2,6 @@ import mongoose from "mongoose";
 
 // Base schema for common fields across all report types
 const baseReportSchema = new mongoose.Schema({
-  reportId: {
-    type: String,
-    required: true,
-    unique: true,
-    match: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
-  },
   reportType: {
     type: String,
     required: true,
@@ -64,9 +58,9 @@ const baseReportSchema = new mongoose.Schema({
 // Patient Health Report Schema
 const patientHealthSchema = new mongoose.Schema({
   patientId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'Patient', // ref to patient schema
     required: true,
-    match: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
   },
   vitals: [{
     timestamp: Date,
@@ -95,9 +89,9 @@ const patientHealthSchema = new mongoose.Schema({
 // Treatment Outcome Report Schema
 const treatmentOutcomeSchema = new mongoose.Schema({
   patientId: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Patient', // ref to pateint schema
     required: true,
-    match: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
   },
   treatmentId: {
     type: String,
@@ -195,11 +189,3 @@ export const PatientHealthReport = BaseReport.discriminator('PATIENT_HEALTH', pa
 export const TreatmentOutcomeReport = BaseReport.discriminator('TREATMENT_OUTCOME', treatmentOutcomeSchema);
 export const HospitalOperationsReport = BaseReport.discriminator('HOSPITAL_OPERATIONS', hospitalOperationsSchema);
 export const FinancialAnalyticsReport = BaseReport.discriminator('FINANCIAL_ANALYTICS', financialAnalyticsSchema);
-
-// module.exports = {
-//   BaseReport,
-//   PatientHealthReport,
-//   TreatmentOutcomeReport,
-//   HospitalOperationsReport,
-//   FinancialAnalyticsReport
-// };
