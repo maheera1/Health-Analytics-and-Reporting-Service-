@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from "mongoose";
 
 // Base schema for common fields across all report types
 const baseReportSchema = new mongoose.Schema({
@@ -188,18 +188,18 @@ const financialAnalyticsSchema = new mongoose.Schema({
 });
 
 // Create the base model
-const BaseReport = mongoose.model('Report', baseReportSchema);
+export const  BaseReport = mongoose.model('Report', baseReportSchema);
 
 // Create discriminator models for each report type
-const PatientHealthReport = BaseReport.discriminator('PATIENT_HEALTH', patientHealthSchema);
-const TreatmentOutcomeReport = BaseReport.discriminator('TREATMENT_OUTCOME', treatmentOutcomeSchema);
-const HospitalOperationsReport = BaseReport.discriminator('HOSPITAL_OPERATIONS', hospitalOperationsSchema);
-const FinancialAnalyticsReport = BaseReport.discriminator('FINANCIAL_ANALYTICS', financialAnalyticsSchema);
+export const PatientHealthReport = BaseReport.discriminator('PATIENT_HEALTH', patientHealthSchema);
+export const TreatmentOutcomeReport = BaseReport.discriminator('TREATMENT_OUTCOME', treatmentOutcomeSchema);
+export const HospitalOperationsReport = BaseReport.discriminator('HOSPITAL_OPERATIONS', hospitalOperationsSchema);
+export const FinancialAnalyticsReport = BaseReport.discriminator('FINANCIAL_ANALYTICS', financialAnalyticsSchema);
 
-module.exports = {
-  BaseReport,
-  PatientHealthReport,
-  TreatmentOutcomeReport,
-  HospitalOperationsReport,
-  FinancialAnalyticsReport
-};
+// module.exports = {
+//   BaseReport,
+//   PatientHealthReport,
+//   TreatmentOutcomeReport,
+//   HospitalOperationsReport,
+//   FinancialAnalyticsReport
+// };

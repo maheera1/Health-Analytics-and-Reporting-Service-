@@ -4,10 +4,10 @@ import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
-
+import { createError } from './middleware/errorTypes.js';
 //routes
 import exampleRouter from './routes/exampleRoute.js';
-import reportRoutes from "./routes/reportRoute.js"
+import hospitalOperationsRoutes from "./routes/hospitalOperationsRoutes.js"
 
 
 
@@ -28,14 +28,9 @@ app.use(express.json({ limit: '10kb' }));
 app.use(errorHandler)
 
 
-//limiting the rate of requests
-const limiter = rateLimit({
-  max: 100,
-  windowMs: 60 * 60 * 1000,
-  message: 'Too many requests from this IP, please try again in an hour'
-});
-app.use('/api', limiter); 
-
+// routes
+app.use('/api', exampleRouter);
+app.use('/api/reports/', hospitalOperationsRoutes);
 
 //handling unknown routes other than defined
 
@@ -49,14 +44,6 @@ app.all('*', (_req, _res, next) => {
 mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch((error) => console.error('MongoDB connection error:', error));
-
-
-
-
-// routes
-app.use('/api', exampleRouter);
-app.use('/api', reportRoutes)
-
 
 
 
