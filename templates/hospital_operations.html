@@ -1,92 +1,156 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hospital Operations Report</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Operations - Report</title>
   <style>
+    /* Add your CSS styles here */
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1, h2, h3 {
       color: #333;
     }
-    h1, h2 {
-      color: #007ACC;
-    }
-    .section {
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
       margin-bottom: 20px;
     }
-    .metrics, .staffing, .resources, .analysis {
-      padding-left: 20px;
+
+    th, td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+
+    .alert {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 10px;
+      margin-bottom: 20px;
     }
   </style>
 </head>
 <body>
   <h1>{{title}}</h1>
-  <p><strong>Report Type:</strong> {{reportType}}</p>
-  <p><strong>Department:</strong> {{department}}</p>
-  <p><strong>Description:</strong> {{description}}</p>
-  <p><strong>Date Range:</strong> {{dateRange.startDate}} - {{dateRange.endDate}}</p>
-  <p><strong>Status:</strong> {{status}}</p>
-  <hr />
+  <p>{{description}}</p>
+  <p>Date Range: {{dateRange.startDate}} - {{dateRange.endDate}}</p>
+  <p>Department: {{department}}</p>
 
-  <div class="section metrics">
-    <h2>Metrics</h2>
-    <p>Admissions: {{metrics.admissions}}</p>
-    <p>Discharges: {{metrics.discharges}}</p>
-    <p>Bed Occupancy: {{metrics.bedOccupancy}}%</p>
-    <p>Average Length of Stay: {{metrics.averageLOS}} days</p>
-    <p>Emergency Visits: {{metrics.emergencyVisits}}</p>
-    <p>Surgeries: {{metrics.surgeries}}</p>
-  </div>
+  <h2>Operational Metrics</h2>
+  <table>
+    <tr>
+      <th>Metric</th>
+      <th>Value</th>
+    </tr>
+    <tr>
+      <td>Admissions</td>
+      <td>{{metrics.admissions}}</td>
+    </tr>
+    <tr>
+      <td>Discharges</td>
+      <td>{{metrics.discharges}}</td>
+    </tr>
+    <tr>
+      <td>Bed Occupancy</td>
+      <td>{{metrics.bedOccupancy}}%</td>
+    </tr>
+    <tr>
+      <td>Average LOS</td>
+      <td>{{metrics.averageLOS}} days</td>
+    </tr>
+    <tr>
+      <td>Emergency Visits</td>
+      <td>{{metrics.emergencyVisits}}</td>
+    </tr>
+    <tr>
+      <td>Surgeries</td>
+      <td>{{metrics.surgeries}}</td>
+    </tr>
+  </table>
 
-  <div class="section staffing">
-    <h2>Staffing</h2>
-    <p>Doctors on Duty: {{staffing.doctorsOnDuty}}</p>
-    <p>Nurses on Duty: {{staffing.nursesOnDuty}}</p>
-    <p>Support Staff: {{staffing.supportStaff}}</p>
-  </div>
+  <h2>Staffing</h2>
+  <table>
+    <tr>
+      <th>Role</th>
+      <th>Number</th>
+    </tr>
+    <tr>
+      <td>Doctors on Duty</td>
+      <td>{{staffing.doctorsOnDuty}}</td>
+    </tr>
+    <tr>
+      <td>Nurses on Duty</td>
+      <td>{{staffing.nursesOnDuty}}</td>
+    </tr>
+    <tr>
+      <td>Support Staff</td>
+      <td>{{staffing.supportStaff}}</td>
+    </tr>
+  </table>
 
-  <div class="section resources">
-    <h2>Resources</h2>
-    <p><strong>Equipment Utilization:</strong></p>
+  <h2>Resources</h2>
+  <h3>Equipment Utilization</h3>
+  {{Equipment Utilization}}
+
+  <!-- <h3>Medicine Inventory</h3>
+  <table>
+    <tr>
+      <th>Item</th>
+      <th>Status</th>
+    </tr>
+    {{#each resources.medicineInventory}}
+    <tr>
+      <td>{{@key}}</td>
+      <td>{{this}}</td>
+    </tr>
+    {{/each}}
+  </table> -->
+<!-- 
+  {{#if resources.criticalAlerts.length}}
+  <h3>Critical Alerts</h3>
+  <div class="alert">
     <ul>
-      <li>ECG Machines: {{resources.equipmentUtilization["ECG Machines"]}}%</li>
-      <li>Cardiac Monitors: {{resources.equipmentUtilization["Cardiac Monitors"]}}%</li>
-      <li>Ventilators: {{resources.equipmentUtilization["Ventilators"]}}%</li>
-    </ul>
-    <p><strong>Medicine Inventory:</strong></p>
-    <ul>
-      <li>Critical Medicines: {{resources.medicineInventory["Critical Medicines"]}}</li>
-      <li>Disposables: {{resources.medicineInventory["Disposables"]}}</li>
-    </ul>
-  </div>
-
-  <div class="section analysis">
-    <h2>Analysis</h2>
-    <p><strong>Trends:</strong></p>
-    <ul>
-      {{#each analysis.trends}}
-        <li>{{this}}</li>
+      {{#each resources.criticalAlerts}}
+      <li>{{this}}</li>
       {{/each}}
     </ul>
-    <p><strong>Bottlenecks:</strong></p>
-    <ul>
-      {{#each analysis.bottlenecks}}
-        <li>{{this}}</li>
-      {{/each}}
-    </ul>
-    <p><strong>Recommendations:</strong></p>
-    <ul>
-      {{#each analysis.recommendations}}
-        <li>{{this}}</li>
-      {{/each}}
-    </ul>
   </div>
+  {{/if}} -->
+<!-- 
+  <h2>Analysis</h2>
+  <h3>Trends</h3>
+  <ul>
+    {{#each analysis.trends}}
+    <li>{{this}}</li>
+    {{/each}}
+  </ul> -->
 
-  <footer>
-    <p><strong>Created By:</strong> {{metadata.createdBy}}</p>
-    <p><strong>Created At:</strong> {{metadata.createdAt}}</p>
-  </footer>
+  <!-- <h3>Bottlenecks</h3>
+  <ul>
+    {{#each analysis.bottlenecks}}
+    <li>{{this}}</li>
+    {{/each}}
+  </ul> -->
+
+  <!-- <h3>Recommendations</h3>
+  <ul>
+    {{#each analysis.recommendations}}
+    <li>{{this}}</li>
+    {{/each}}
+  </ul> -->
+
+  <p>Report Generated by: {{metadata.createdBy}}</p>
+  <p>Report Generated on: {{metadata.createdAt}}</p>
+  <p>Status: {{status}}</p>
 </body>
 </html>

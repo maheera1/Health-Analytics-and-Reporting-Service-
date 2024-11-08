@@ -5,7 +5,6 @@ import { generatePDF } from '../utils/generatePDF.js';
 
 import fs from 'fs';
 import path from 'path';
-import Handlebars from 'handlebars';
 
 // get all reports
 export const getAllHospitalOperationsReports = asyncHandler(async (req, res) => {
@@ -44,7 +43,6 @@ export const createHospitalOperationsReport = asyncHandler(async (req, res) => {
     resources,
     analysis
   } = req.body;
-  console.log("working!!!")
   // Validate required fields
   if (
     !reportType ||
@@ -62,7 +60,6 @@ export const createHospitalOperationsReport = asyncHandler(async (req, res) => {
   ) {
     throw createError(400, 'Please provide all required fields');
   }
-  generateHospitalOperationsReport(res.body)
   // Create a new report using both base schema and specific schema fields
   const newReport = await HospitalOperationsReport.create({
     reportType,
@@ -78,6 +75,8 @@ export const createHospitalOperationsReport = asyncHandler(async (req, res) => {
     resources,
     analysis,
   });
+
+  await generateHospitalOperationsReport(req.body)
 
   res.status(201).json({ success: true, data: newReport });
 });
@@ -127,22 +126,76 @@ export const deleteHospitalOperationsReport = asyncHandler(async (req, res) => {
 
 export const generateHospitalOperationsReport = async (data) => {
   try {
-    // Use an absolute path
-    const templatePath = path.resolve('templates', 'hospital_operations.html');
     const outputPath = `Hospital_Operations_Report.pdf`;
 
-    // Load and compile the HTML template
-    const templateSource = await fs.promises.readFile(templatePath, 'utf8');
-    const template = Handlebars.compile(templateSource);
+    let html = fs.readFileSync(path.join("templates", 'hospital_operations.html'), 'utf8');
+    html = reportReplaceHelper(data, html);
+    
+    await generatePDF(outputPath, html, "Hospital Operations Report");
 
-    // Generate HTML by replacing placeholders with data
-    const htmlContent = template(data);
-
-    // Generate the PDF
-    await generatePDF(outputPath, htmlContent, "Hospital Operations Report");
-
-    console.log('PDF generation completed');
   } catch (error) {
     console.error("Error generating hospital operations report PDF:", error);
   }
 };
+
+//adds data to .html template
+const reportReplaceHelper = (data, html) => {
+  html = html.replace('{{title}}', data.title || '');
+  html = html.replace('{{description}}', data.description || '');
+  html = html.replace('{{dateRange.startDate}}', data.dateRange?.startDate || '')
+      .replace('{{dateRange.endDate}}', data.dateRange?.endDate || '');
+  html = html.replace('{{department}}', data.department || '');
+  html = html.replace('{{metrics.admissions}}', data.metrics?.admissions || '')
+      .replace('{{metrics.discharges}}', data.metrics?.discharges || '')
+      .replace('{{metrics.bedOccupancy}}', data.metrics?.bedOccupancy || '')
+      .replace('{{metrics.averageLOS}}', data.metrics?.averageLOS || '')
+      .replace('{{metrics.emergencyVisits}}', data.metrics?.emergencyVisits || '')
+      .replace('{{metrics.surgeries}}', data.metrics?.surgeries || '');
+  html = html.replace('{{staffing.doctorsOnDuty}}', data.staffing?.doctorsOnDuty || '')
+      .replace('{{staffing.nursesOnDuty}}', data.staffing?.nursesOnDuty || '')
+      .replace('{{staffing.supportStaff}}', data.staffing?.supportStaff || '');
+  html = html.replace('{{metadata.createdBy}}', data.metadata?.createdBy || '')
+      .replace('{{metadata.createdAt}}', data.metadata?.createdAt || '');
+  html = html.replace('{{status}}', data.status || '');
+  if (data.resources?.equipmentUtilization) {
+    let equipmentHtml = '<table><tr><th>Equipment</th><th>Utilization (%)</th></tr>';
+    for (const [equipment, utilization] of Object.entries(data.resources.equipmentUtilization)) {
+    equipmentHtml += `<tr><td>${equipment}</td><td>${utilization}</td></tr>`
+    }
+    equipmentHtml += '</table>'
+    html = html.replace('{{Equipment Utilization}}', equipmentHtml);
+  }
+
+  // Handle medicine inventory
+  // if (data.resources?.medicineInventory) {
+  // let inventoryHtml = '';
+  // for (const [item, status] of Object.entries(data.resources.medicineInventory)) {
+  // inventoryHtml += `${item}       ${status}\n`;
+  // }
+  // html = html.replace('{{#each resources.medicineInventory}}{{/each}}', inventoryHtml);
+  // }
+
+  // // Handle critical alerts
+  // if (data.resources?.criticalAlerts?.length) {
+  // const alertsHtml = data.resources.criticalAlerts.map(alert => `* ${alert}`).join('\n');
+  // html = html.replace('{{#each resources.criticalAlerts}}       * {{this}}       {{/each}}', alertsHtml);
+  // }
+
+  // // Handle analysis sections
+  // if (data.analysis?.trends) {
+  // const trendsHtml = data.analysis.trends.map(trend => `* ${trend}`).join('\n');
+  // html = html.replace('{{#each analysis.trends}}     * {{this}}     {{/each}}', trendsHtml);
+  // }
+
+  // if (data.analysis?.bottlenecks) {
+  // const bottlenecksHtml = data.analysis.bottlenecks.map(bottleneck => `* ${bottleneck}`).join('\n');
+  // html = html.replace('{{#each analysis.bottlenecks}}     * {{this}}     {{/each}}', bottlenecksHtml);
+  // }
+
+  // if (data.analysis?.recommendations) {
+  // const recommendationsHtml = data.analysis.recommendations.map(rec => `* ${rec}`).join('\n');
+  // html = html.replace('{{#each analysis.recommendations}}     * {{this}}     {{/each}}', recommendationsHtml);
+  // }
+
+  return html
+}
