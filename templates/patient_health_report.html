@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Patient Health Report</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      color: #333;
+    }
+    h1 {
+      color: #007ACC;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .diagnosis, .medications, .testResults {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Patient Health Report for {{patient.name}}</h1>
+  <p><strong>Age:</strong> {{patient.age}} years</p>
+  <p><strong>Gender:</strong> {{patient.gender}}</p>
+  <p><strong>Patient ID:</strong> {{patient.id}}</p>
+  <hr />
+
+  <div class="section diagnosis">
+    <h2>Diagnosis</h2>
+    <p>{{diagnosis}}</p>
+  </div>
+
+  <div class="section medications">
+    <h2>Medications</h2>
+    <ul>
+      {{#each medications}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </div>
+
+  <div class="section testResults">
+    <h2>Test Results</h2>
+    <ul>
+      {{#each testResults}}
+        <li>{{this.testName}}: {{this.result}}</li>
+      {{/each}}
+    </ul>
+  </div>
+
+  <footer>
+    <p><strong>Report Created By:</strong> {{metadata.createdBy}}</p>
+    <p><strong>Report Date:</strong> {{metadata.createdAt}}</p>
+  </footer>
+</body>
+</html>
