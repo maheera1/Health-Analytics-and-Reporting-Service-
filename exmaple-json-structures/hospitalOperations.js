@@ -1,6 +1,5 @@
 // Hospital Operations Report Example
 const hospitalOperationsReport = {
-reportId: "660e8400-e29b-41d4-a716-446655440000",
 reportType: "HOSPITAL_OPERATIONS",
 title: "Monthly Operations Summary - Cardiology Department",
 description: "Analysis of operational metrics for March 2024",

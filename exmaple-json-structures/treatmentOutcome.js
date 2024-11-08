@@ -1,6 +1,5 @@
 // Treatment Outcome Report Example
 const treatmentOutcomeReport = {
-reportId: "770e8400-e29b-41d4-a716-446655440000",
 reportType: "TREATMENT_OUTCOME",
 title: "Treatment Effectiveness Review - Mrs. Jane Doe",
 description: "Evaluation of diabetes treatment plan",

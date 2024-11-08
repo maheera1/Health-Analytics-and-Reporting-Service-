@@ -1,6 +1,5 @@
 // Patient Health Report Example
 const patientHealthReport = {
-  reportId: "550e8400-e29b-41d4-a716-446655440000",
   reportType: "PATIENT_HEALTH",
   title: "Quarterly Health Assessment - John Doe",
   description: "Comprehensive health status review for Q1 2024",

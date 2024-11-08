@@ -1,6 +1,5 @@
 // Financial Analytics Report Example
 const financialAnalyticsReport = {
-reportId: "880e8400-e29b-41d4-a716-446655440000",
 reportType: "FINANCIAL_ANALYTICS",
 title: "Q1 2024 Financial Performance",
 description: "Comprehensive financial review for the hospital",
