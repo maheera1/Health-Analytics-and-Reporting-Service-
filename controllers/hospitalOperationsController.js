@@ -1,6 +1,11 @@
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { createError } from '../middleware/errorTypes.js';
 import { HospitalOperationsReport } from "../models/HealthAnalyst.schema.js"
+import { generatePDF } from '../utils/generatePDF.js';
+
+import fs from 'fs';
+import path from 'path';
+import Handlebars from 'handlebars';
 
 // get all reports
 export const getAllHospitalOperationsReports = asyncHandler(async (req, res) => {
@@ -57,7 +62,7 @@ export const createHospitalOperationsReport = asyncHandler(async (req, res) => {
   ) {
     throw createError(400, 'Please provide all required fields');
   }
-
+  generateHospitalOperationsReport(res.body)
   // Create a new report using both base schema and specific schema fields
   const newReport = await HospitalOperationsReport.create({
     reportType,
@@ -118,3 +123,26 @@ export const deleteHospitalOperationsReport = asyncHandler(async (req, res) => {
   }
   res.json({ success: true, message: 'Report deleted' });
 });
+
+
+export const generateHospitalOperationsReport = async (data) => {
+  try {
+    // Use an absolute path
+    const templatePath = path.resolve('templates', 'hospital_operations.html');
+    const outputPath = `Hospital_Operations_Report.pdf`;
+
+    // Load and compile the HTML template
+    const templateSource = await fs.promises.readFile(templatePath, 'utf8');
+    const template = Handlebars.compile(templateSource);
+
+    // Generate HTML by replacing placeholders with data
+    const htmlContent = template(data);
+
+    // Generate the PDF
+    await generatePDF(outputPath, htmlContent, "Hospital Operations Report");
+
+    console.log('PDF generation completed');
+  } catch (error) {
+    console.error("Error generating hospital operations report PDF:", error);
+  }
+};

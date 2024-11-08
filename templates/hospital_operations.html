@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hospital Operations Report</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      color: #333;
+    }
+    h1, h2 {
+      color: #007ACC;
+    }
+    .section {
+      margin-bottom: 20px;
+    }
+    .metrics, .staffing, .resources, .analysis {
+      padding-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>{{title}}</h1>
+  <p><strong>Report Type:</strong> {{reportType}}</p>
+  <p><strong>Department:</strong> {{department}}</p>
+  <p><strong>Description:</strong> {{description}}</p>
+  <p><strong>Date Range:</strong> {{dateRange.startDate}} - {{dateRange.endDate}}</p>
+  <p><strong>Status:</strong> {{status}}</p>
+  <hr />
+
+  <div class="section metrics">
+    <h2>Metrics</h2>
+    <p>Admissions: {{metrics.admissions}}</p>
+    <p>Discharges: {{metrics.discharges}}</p>
+    <p>Bed Occupancy: {{metrics.bedOccupancy}}%</p>
+    <p>Average Length of Stay: {{metrics.averageLOS}} days</p>
+    <p>Emergency Visits: {{metrics.emergencyVisits}}</p>
+    <p>Surgeries: {{metrics.surgeries}}</p>
+  </div>
+
+  <div class="section staffing">
+    <h2>Staffing</h2>
+    <p>Doctors on Duty: {{staffing.doctorsOnDuty}}</p>
+    <p>Nurses on Duty: {{staffing.nursesOnDuty}}</p>
+    <p>Support Staff: {{staffing.supportStaff}}</p>
+  </div>
+
+  <div class="section resources">
+    <h2>Resources</h2>
+    <p><strong>Equipment Utilization:</strong></p>
+    <ul>
+      <li>ECG Machines: {{resources.equipmentUtilization["ECG Machines"]}}%</li>
+      <li>Cardiac Monitors: {{resources.equipmentUtilization["Cardiac Monitors"]}}%</li>
+      <li>Ventilators: {{resources.equipmentUtilization["Ventilators"]}}%</li>
+    </ul>
+    <p><strong>Medicine Inventory:</strong></p>
+    <ul>
+      <li>Critical Medicines: {{resources.medicineInventory["Critical Medicines"]}}</li>
+      <li>Disposables: {{resources.medicineInventory["Disposables"]}}</li>
+    </ul>
+  </div>
+
+  <div class="section analysis">
+    <h2>Analysis</h2>
+    <p><strong>Trends:</strong></p>
+    <ul>
+      {{#each analysis.trends}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+    <p><strong>Bottlenecks:</strong></p>
+    <ul>
+      {{#each analysis.bottlenecks}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+    <p><strong>Recommendations:</strong></p>
+    <ul>
+      {{#each analysis.recommendations}}
+        <li>{{this}}</li>
+      {{/each}}
+    </ul>
+  </div>
+
+  <footer>
+    <p><strong>Created By:</strong> {{metadata.createdBy}}</p>
+    <p><strong>Created At:</strong> {{metadata.createdAt}}</p>
+  </footer>
+</body>
+</html>
