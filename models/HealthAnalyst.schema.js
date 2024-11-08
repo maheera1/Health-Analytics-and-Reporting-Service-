@@ -1,68 +1,205 @@
 const mongoose = require('mongoose');
 
-// Health Analytics Reporting Service Schema
-const healthAnalyticsReportingServiceSchema = new mongoose.Schema({
+// Base schema for common fields across all report types
+const baseReportSchema = new mongoose.Schema({
   reportId: {
     type: String,
     required: true,
     unique: true,
-    match: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, // UUID format
+    match: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
   },
   reportType: {
     type: String,
     required: true,
-    enum: ['Routine', 'Urgent', 'Follow-Up', 'Stat'], // Defining allowed report types
+    enum: ['PATIENT_HEALTH', 'TREATMENT_OUTCOME', 'HOSPITAL_OPERATIONS', 'FINANCIAL_ANALYTICS'],
   },
-  creationDate: {
-    type: Date,
-    required: true,
-    default: Date.now,
-  },
-  patientId: {
+  title: {
     type: String,
     required: true,
-    match: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/, // UUID format
   },
-  reportData: {
-    parameters: {
-      type: Object,
-      additionalProperties: true, // Allows dynamic key-value pairs
-      required: true, // Ensuring parameters are always provided
-    },
-    data: [{
-      type: Object,
-      required: true, // Each entry in data is required
-      additionalProperties: true, // Allows dynamic key-value pairs
-    }],
-    analysis: {
-      type: Object,
-      additionalProperties: true, // Allows dynamic key-value pairs
-      required: true, // Ensuring analysis is always provided
-    },
-  },
-  exportFormat: {
+  description: {
     type: String,
-    required: true,
-    enum: ['PDF', 'CSV', 'Excel'], // Allowed export formats
+    required: false,
+  },
+  dateRange: {
+    startDate: {
+      type: Date,
+      required: true,
+    },
+    endDate: {
+      type: Date,
+      required: true,
+    }
+  },
+  metadata: {
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    createdBy: {
+      type: String,
+      required: true,
+    },
+    modifiedAt: {
+      type: Date,
+      default: null,
+    },
+    modifiedBy: {
+      type: String,
+      default: null,
+    }
   },
   status: {
     type: String,
-    enum: ['Draft', 'Finalized', 'Archived'], // Status of the report
-    default: 'Draft',
+    enum: ['DRAFT', 'PENDING_REVIEW', 'FINALIZED', 'ARCHIVED'],
+    default: 'DRAFT',
   },
-  createdBy: {
+  exportFormat: {
     type: String,
-    required: true, // ID of the user who created the report
+    enum: ['PDF', 'CSV', 'EXCEL', 'JSON'],
+    required: true,
   },
-  modifiedDate: {
-    type: Date,
-    default: null, // Timestamp for when the report was last modified
-  },
-  modifiedBy: {
+}, { discriminatorKey: 'reportType' });
+
+// Patient Health Report Schema
+const patientHealthSchema = new mongoose.Schema({
+  patientId: {
     type: String,
-    default: null, // ID of the user who last modified the report
+    required: true,
+    match: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
   },
+  vitals: [{
+    timestamp: Date,
+    bloodPressure: {
+      systolic: Number,
+      diastolic: Number,
+    },
+    heartRate: Number,
+    temperature: Number,
+    bloodSugar: Number,
+    weight: Number,
+  }],
+  labResults: [{
+    testName: String,
+    value: mongoose.Schema.Types.Mixed,
+    unit: String,
+    referenceRange: String,
+    timestamp: Date,
+  }],
+  summary: {
+    type: String,
+    required: true,
+  }
 });
 
-const HealthAnalyticsReportingService = mongoose.model('HealthAnalyticsReportingService', healthAnalyticsReportingServiceSchema);
-module.exports = HealthAnalyticsReportingService;
+// Treatment Outcome Report Schema
+const treatmentOutcomeSchema = new mongoose.Schema({
+  patientId: {
+    type: String,
+    required: true,
+    match: /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/,
+  },
+  treatmentId: {
+    type: String,
+    required: true,
+  },
+  diagnosis: String,
+  treatment: {
+    name: String,
+    startDate: Date,
+    endDate: Date,
+    type: String,
+  },
+  outcomes: {
+    preMetrics: mongoose.Schema.Types.Mixed,
+    postMetrics: mongoose.Schema.Types.Mixed,
+    improvements: [String],
+    complications: [String],
+  },
+  recommendations: String,
+});
+
+// Hospital Operations Report Schema
+const hospitalOperationsSchema = new mongoose.Schema({
+  department: {
+    type: String,
+    required: false, // Optional if report is hospital-wide
+  },
+  metrics: {
+    admissions: Number,
+    discharges: Number,
+    bedOccupancy: Number,
+    averageLOS: Number, // Length of Stay
+    emergencyVisits: Number,
+    surgeries: Number,
+  },
+  staffing: {
+    doctorsOnDuty: Number,
+    nursesOnDuty: Number,
+    supportStaff: Number,
+  },
+  resources: {
+    equipmentUtilization: mongoose.Schema.Types.Mixed,
+    medicineInventory: mongoose.Schema.Types.Mixed,
+    criticalAlerts: [String],
+  },
+  analysis: {
+    trends: [String],
+    bottlenecks: [String],
+    recommendations: [String],
+  }
+});
+
+// Financial Analytics Report Schema
+const financialAnalyticsSchema = new mongoose.Schema({
+  department: {
+    type: String,
+    required: false, // Optional if report is hospital-wide
+  },
+  revenue: {
+    total: Number,
+    breakdown: {
+      consultations: Number,
+      procedures: Number,
+      pharmacy: Number,
+      laboratory: Number,
+    }
+  },
+  expenses: {
+    total: Number,
+    breakdown: {
+      staffing: Number,
+      supplies: Number,
+      maintenance: Number,
+      utilities: Number,
+    }
+  },
+  insurance: {
+    claimsSubmitted: Number,
+    claimsProcessed: Number,
+    claimsPending: Number,
+    averageProcessingTime: Number,
+  },
+  analysis: {
+    profitMargin: Number,
+    keyMetrics: mongoose.Schema.Types.Mixed,
+    recommendations: [String],
+  }
+});
+
+// Create the base model
+const BaseReport = mongoose.model('Report', baseReportSchema);
+
+// Create discriminator models for each report type
+const PatientHealthReport = BaseReport.discriminator('PATIENT_HEALTH', patientHealthSchema);
+const TreatmentOutcomeReport = BaseReport.discriminator('TREATMENT_OUTCOME', treatmentOutcomeSchema);
+const HospitalOperationsReport = BaseReport.discriminator('HOSPITAL_OPERATIONS', hospitalOperationsSchema);
+const FinancialAnalyticsReport = BaseReport.discriminator('FINANCIAL_ANALYTICS', financialAnalyticsSchema);
+
+module.exports = {
+  BaseReport,
+  PatientHealthReport,
+  TreatmentOutcomeReport,
+  HospitalOperationsReport,
+  FinancialAnalyticsReport
+};
