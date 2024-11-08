@@ -32,6 +32,8 @@ const generatePDFFromTemplate = async (templatePath, outputPath, data, dataKey) 
     tableRows += Object.keys(item).map((key) => `<td>${item[key]}</td>`).join('');
   });
 
+  console.log(tableRows)
+
   const html = template.replace('{{rows}}', tableRows);
 
   // Navigate to the rendered HTML and generate the PDF
