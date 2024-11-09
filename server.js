@@ -8,7 +8,7 @@ import { createError } from './middleware/errorTypes.js';
 //routes
 import exampleRouter from './routes/exampleRoute.js';
 import hospitalOperationsRoutes from "./routes/hospitalOperationsRoutes.js"
-
+import patientHealthRoutes from "./routes/patientHealthRoutes.js"; 
 
 
 dotenv.config();
@@ -31,6 +31,7 @@ app.use(errorHandler)
 // routes
 app.use('/api', exampleRouter);
 app.use('/api/reports/', hospitalOperationsRoutes);
+app.use('/api/reports/', patientHealthRoutes);
 
 //handling unknown routes other than defined
 
