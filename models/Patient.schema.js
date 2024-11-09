@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const patientSchema = new mongoose.Schema({
+const patientHealthSchema = new mongoose.Schema({
   name: { type: String, required: true },
   dateOfBirth: { type: Date, required: true },
   gender: { type: String, enum: ['Male', 'Female', 'Other'], required: true },
@@ -15,7 +15,7 @@ const patientSchema = new mongoose.Schema({
   
 }, { timestamps: true });
 
-const Patient = mongoose.model('Patient', patientSchema);
+const Patient = mongoose.model('Patient', patientHealthSchema);
 export default Patient
 
 
