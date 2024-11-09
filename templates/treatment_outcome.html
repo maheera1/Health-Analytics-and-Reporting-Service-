@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treatment Outcome - Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1a365d;
+      --secondary-color: #2b6cb0;
+      --accent-color: #e53e3e;
+      --success-color: #38a169;
+      --warning-color: #d69e2e;
+      --text-color: #2d3748;
+      --border-color: #e2e8f0;
+      --background-light: #f7fafc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: white;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 20mm;
+      font-size: 11pt;
+    }
+
+    .report-header {
+      border-bottom: 2px solid var(--secondary-color);
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .header-left {
+      flex: 2;
+    }
+
+    .header-right {
+      flex: 1;
+      text-align: right;
+      font-size: 0.9rem;
+    }
+
+    .report-title {
+      color: var(--primary-color);
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .report-subtitle {
+      color: var(--secondary-color);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .patient-info {
+      background: var(--background-light);
+      padding: 1.2rem;
+      border-radius: 4px;
+      margin-bottom: 1.5rem;
+    }
+
+    .patient-info h2 {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .info-item {
+      font-size: 0.9rem;
+    }
+
+    .info-item strong {
+      color: var(--secondary-color);
+    }
+
+    .metrics-section {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      break-inside: avoid;
+    }
+
+    .metric-card {
+      background: var(--background-light);
+      padding: 1.2rem;
+      border-radius: 4px;
+      break-inside: avoid;
+    }
+
+    .metric-card h2 {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: white;
+    }
+
+    th, td {
+      padding: 0.6rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: var(--background-light);
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .outcome-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .outcome-list li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.5rem;
+      position: relative;
+    }
+
+    .outcome-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0.5rem;
+    }
+
+    .improvements li::before {
+      color: var(--success-color);
+    }
+
+    .complications li::before {
+      color: var(--warning-color);
+    }
+
+    .recommendations-section {
+      margin: 2rem 0;
+      padding: 1.2rem;
+      background: var(--background-light);
+      border-radius: 4px;
+      break-inside: avoid;
+    }
+
+    .recommendations-section h2 {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .report-footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.8rem;
+      color: #666;
+      text-align: right;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-transform: uppercase;
+    }
+
+    .status-finalized {
+      background-color: #C6F6D5;
+      color: #22543D;
+    }
+
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .page-break {
+        break-before: page;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="report-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="report-title">{{title}}</h1>
+        <p class="report-subtitle">{{description}}</p>
+      </div>
+      <div class="header-right">
+        <p><strong>Report Period</strong><br>{{dateRange.startDate}} - {{dateRange.endDate}}</p>
+        <p><strong>Status</strong><br>
+          <span class="status-badge status-{{status.toLowerCase}}">{{status}}</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <div class="patient-info">
+    <h2>Treatment Overview</h2>
+    <div class="info-grid">
+      <div class="info-item">
+        <strong>Diagnosis:</strong> {{diagnosis}}
+      </div>
+      <div class="info-item">
+        <strong>Treatment Type:</strong> {{treatment.type}}
+      </div>
+      <div class="info-item">
+        <strong>Treatment Name:</strong> {{treatment.name}}
+      </div>
+      <div class="info-item">
+        <strong>Duration:</strong> {{treatment.startDate}} - {{treatment.endDate}}
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics-section">
+    <div class="metric-card">
+      <h2>Health Metrics Comparison</h2>
+      <table>
+        <tr>
+          <th>Metric</th>
+          <th>Pre-Treatment</th>
+          <th>Post-Treatment</th>
+        </tr>
+        {{#each outcomes.preMetrics}}
+        <tr>
+          <td>{{@key}}</td>
+          <td>{{this}}</td>
+          <td>{{lookup ../outcomes.postMetrics @key}}</td>
+        </tr>
+        {{/each}}
+      </table>
+    </div>
+
+    <div class="metric-card">
+      <h2>Treatment Outcomes</h2>
+      {{#if outcomes.improvements.length}}
+      <h3 style="color: var(--success-color); font-size: 0.9rem; margin-top: 1rem;">Improvements</h3>
+      <ul class="outcome-list improvements">
+        {{#each outcomes.improvements}}
+        <li>{{this}}</li>
+        {{/each}}
+      </ul>
+      {{/if}}
+
+      {{#if outcomes.complications.length}}
+      <h3 style="color: var(--warning-color); font-size: 0.9rem; margin-top: 1rem;">Complications</h3>
+      <ul class="outcome-list complications">
+        {{#each outcomes.complications}}
+        <li>{{this}}</li>
+        {{/each}}
+      </ul>
+      {{/if}}
+    </div>
+  </div>
+
+  {{#if recommendations}}
+  <div class="recommendations-section">
+    <h2>Recommendations</h2>
+    <p>{{recommendations}}</p>
+  </div>
+  {{/if}}
+
+  <div class="report-footer">
+    <p>Generated by: {{metadata.createdBy}} | {{metadata.createdAt}}</p>
+  </div>
+</body>
+</html>
