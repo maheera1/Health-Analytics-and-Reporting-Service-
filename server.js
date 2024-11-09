@@ -6,8 +6,8 @@ import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { createError } from './middleware/errorTypes.js';
 //routes
-import exampleRouter from './routes/exampleRoute.js';
 import hospitalOperationsRoutes from "./routes/hospitalOperationsRoutes.js"
+import patientRoutes from "./routes/patientRoutes.js"
 
 
 
@@ -29,8 +29,8 @@ app.use(errorHandler)
 
 
 // routes
-app.use('/api', exampleRouter);
 app.use('/api/reports/', hospitalOperationsRoutes);
+app.use('/api/', patientRoutes)
 
 //handling unknown routes other than defined
 
