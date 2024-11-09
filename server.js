@@ -6,9 +6,11 @@ import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { createError } from './middleware/errorTypes.js';
 //routes
-import exampleRouter from './routes/exampleRoute.js';
 import hospitalOperationsRoutes from "./routes/hospitalOperationsRoutes.js"
-import patientHealthRoutes from "./routes/patientHealthRoutes.js"; 
+import treatmentOutcomeRoutes from "./routes/treatmenOutcomeRoutes.js"
+import patientRoutes from "./routes/patientRoutes.js"
+
+
 
 
 dotenv.config();
@@ -29,9 +31,9 @@ app.use(errorHandler)
 
 
 // routes
-app.use('/api', exampleRouter);
 app.use('/api/reports/', hospitalOperationsRoutes);
-app.use('/api/reports/', patientHealthRoutes);
+app.use('/api/treatmentOutcome/', treatmentOutcomeRoutes);
+app.use('/api/', patientRoutes)
 
 //handling unknown routes other than defined
 

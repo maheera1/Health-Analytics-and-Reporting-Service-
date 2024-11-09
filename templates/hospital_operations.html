@@ -1,92 +1,352 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hospital Operations Report</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Operations - Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --primary-color: #1a365d;
+      --secondary-color: #2b6cb0;
+      --accent-color: #e53e3e;
+      --text-color: #2d3748;
+      --border-color: #e2e8f0;
+      --background-light: #f7fafc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      margin: 20px;
-      color: #333;
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: white;
+      width: 210mm; /* A4 width */
+      min-height: 297mm; /* A4 height */
+      margin: 0 auto;
+      padding: 20mm; /* Standard margin for printing */
+      font-size: 11pt; /* Standard readable size for reports */
     }
-    h1, h2 {
-      color: #007ACC;
+
+    .report-header {
+      border-bottom: 2px solid var(--secondary-color);
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
     }
-    .section {
-      margin-bottom: 20px;
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
     }
-    .metrics, .staffing, .resources, .analysis {
-      padding-left: 20px;
+
+    .header-left {
+      flex: 2;
+    }
+
+    .header-right {
+      flex: 1;
+      text-align: right;
+      font-size: 0.9rem;
+    }
+
+    .report-title {
+      color: var(--primary-color);
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .report-subtitle {
+      color: var(--secondary-color);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .metrics-section {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      break-inside: avoid;
+    }
+
+    .metric-card {
+      background: var(--background-light);
+      padding: 1.2rem;
+      border-radius: 4px;
+      break-inside: avoid;
+    }
+
+    .metric-card h2 {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: white;
+    }
+
+    th, td {
+      padding: 0.6rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    th {
+      background-color: white;
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .alert {
+      background-color: #fff5f5;
+      border-left: 4px solid var(--accent-color);
+      color: #c53030;
+      padding: 1rem;
+      margin: 1.5rem 0;
+      font-size: 0.9rem;
+      break-inside: avoid;
+    }
+
+    .alert h3 {
+      color: var(--accent-color);
+      margin-bottom: 0.5rem;
+      font-size: 1rem;
+    }
+
+    .alert ul {
+      margin-left: 1.5rem;
+    }
+
+    .analysis-section {
+      margin: 2rem 0;
+      break-before: page;
+      padding-top: 1rem;
+    }
+
+    .analysis-section h2 {
+      color: var(--primary-color);
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .analysis-section h3 {
+      color: var(--secondary-color);
+      font-size: 1rem;
+      margin: 1rem 0 0.5rem 0;
+      font-weight: 500;
+    }
+
+    .analysis-section ul {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .report-footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.8rem;
+      color: #666;
+      text-align: right;
+    }
+
+    /* Hide empty optional sections */
+    .optional-section:empty {
+      display: none;
+    }
+
+    /* When an optional section is hidden, adjust grid */
+    .metrics-section:has(.optional-section:empty) {
+      grid-template-columns: 1fr;
+    }
+
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .page-break {
+        break-before: page;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>{{title}}</h1>
-  <p><strong>Report Type:</strong> {{reportType}}</p>
-  <p><strong>Department:</strong> {{department}}</p>
-  <p><strong>Description:</strong> {{description}}</p>
-  <p><strong>Date Range:</strong> {{dateRange.startDate}} - {{dateRange.endDate}}</p>
-  <p><strong>Status:</strong> {{status}}</p>
-  <hr />
-
-  <div class="section metrics">
-    <h2>Metrics</h2>
-    <p>Admissions: {{metrics.admissions}}</p>
-    <p>Discharges: {{metrics.discharges}}</p>
-    <p>Bed Occupancy: {{metrics.bedOccupancy}}%</p>
-    <p>Average Length of Stay: {{metrics.averageLOS}} days</p>
-    <p>Emergency Visits: {{metrics.emergencyVisits}}</p>
-    <p>Surgeries: {{metrics.surgeries}}</p>
+  <div class="report-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="report-title">{{title}}</h1>
+        <p class="report-subtitle">{{description}}</p>
+      </div>
+      <div class="header-right">
+        <p><strong>Date Range</strong><br>{{dateRange.startDate}} - {{dateRange.endDate}}</p>
+        <p><strong>Department</strong><br>{{department}}</p>
+      </div>
+    </div>
   </div>
 
-  <div class="section staffing">
-    <h2>Staffing</h2>
-    <p>Doctors on Duty: {{staffing.doctorsOnDuty}}</p>
-    <p>Nurses on Duty: {{staffing.nursesOnDuty}}</p>
-    <p>Support Staff: {{staffing.supportStaff}}</p>
+  <div class="metrics-section">
+    <div class="metric-card">
+      <h2>Key Performance Metrics</h2>
+      <table>
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+        </tr>
+        {{#if metrics.admissions}}
+        <tr>
+          <td>Admissions</td>
+          <td>{{metrics.admissions}}</td>
+        </tr>
+        {{/if}}
+        {{#if metrics.discharges}}
+        <tr>
+          <td>Discharges</td>
+          <td>{{metrics.discharges}}</td>
+        </tr>
+        {{/if}}
+        {{#if metrics.bedOccupancy}}
+        <tr>
+          <td>Bed Occupancy</td>
+          <td>{{metrics.bedOccupancy}}%</td>
+        </tr>
+        {{/if}}
+        {{#if metrics.averageLOS}}
+        <tr>
+          <td>Average LOS</td>
+          <td>{{metrics.averageLOS}} days</td>
+        </tr>
+        {{/if}}
+        {{#if metrics.emergencyVisits}}
+        <tr>
+          <td>Emergency Visits</td>
+          <td>{{metrics.emergencyVisits}}</td>
+        </tr>
+        {{/if}}
+        {{#if metrics.surgeries}}
+        <tr>
+          <td>Surgeries</td>
+          <td>{{metrics.surgeries}}</td>
+        </tr>
+        {{/if}}
+      </table>
+    </div>
+
+    <div class="metric-card">
+      <h2>Current Staffing</h2>
+      <table>
+        <tr>
+          <th>Role</th>
+          <th>Count</th>
+        </tr>
+        {{#if staffing.doctorsOnDuty}}
+        <tr>
+          <td>Doctors on Duty</td>
+          <td>{{staffing.doctorsOnDuty}}</td>
+        </tr>
+        {{/if}}
+        {{#if staffing.nursesOnDuty}}
+        <tr>
+          <td>Nurses on Duty</td>
+          <td>{{staffing.nursesOnDuty}}</td>
+        </tr>
+        {{/if}}
+        {{#if staffing.supportStaff}}
+        <tr>
+          <td>Support Staff</td>
+          <td>{{staffing.supportStaff}}</td>
+        </tr>
+        {{/if}}
+      </table>
+    </div>
   </div>
 
-  <div class="section resources">
-    <h2>Resources</h2>
-    <p><strong>Equipment Utilization:</strong></p>
+  <div class="metrics-section">
+    {{#if resources.medicineInventory}}
+    <div class="metric-card">
+      <h2>Medicine Inventory Status</h2>
+      <table>
+        <tr>
+          <th>Item</th>
+          <th>Status</th>
+        </tr>
+        {{#each resources.medicineInventory}}
+        <tr>
+          <td>{{@key}}</td>
+          <td>{{this}}</td>
+        </tr>
+        {{/each}}
+      </table>
+    </div>
+    {{/if}}
+
+    <div class="metric-card optional-section">
+      {{#if Equipment Utilization}}
+      <h2>Equipment Utilization</h2>
+      {{Equipment Utilization}}
+      {{/if}}
+    </div>
+  </div>
+
+  {{#if resources.criticalAlerts.length}}
+  <div class="alert">
+    <h3>Critical Alerts</h3>
     <ul>
-      <li>ECG Machines: {{resources.equipmentUtilization["ECG Machines"]}}%</li>
-      <li>Cardiac Monitors: {{resources.equipmentUtilization["Cardiac Monitors"]}}%</li>
-      <li>Ventilators: {{resources.equipmentUtilization["Ventilators"]}}%</li>
-    </ul>
-    <p><strong>Medicine Inventory:</strong></p>
-    <ul>
-      <li>Critical Medicines: {{resources.medicineInventory["Critical Medicines"]}}</li>
-      <li>Disposables: {{resources.medicineInventory["Disposables"]}}</li>
+      {{#each resources.criticalAlerts}}
+      <li>{{this}}</li>
+      {{/each}}
     </ul>
   </div>
+  {{/if}}
 
-  <div class="section analysis">
-    <h2>Analysis</h2>
-    <p><strong>Trends:</strong></p>
+  <div class="analysis-section page-break">
+    <h2>Analysis & Recommendations</h2>
+    
+    {{#if analysis.trends}}
+    <h3>Key Trends</h3>
     <ul>
       {{#each analysis.trends}}
-        <li>{{this}}</li>
+      <li>{{this}}</li>
       {{/each}}
     </ul>
-    <p><strong>Bottlenecks:</strong></p>
+    {{/if}}
+
+    {{#if analysis.bottlenecks}}
+    <h3>Identified Bottlenecks</h3>
     <ul>
       {{#each analysis.bottlenecks}}
-        <li>{{this}}</li>
+      <li>{{this}}</li>
       {{/each}}
     </ul>
-    <p><strong>Recommendations:</strong></p>
+    {{/if}}
+
+    {{#if analysis.recommendations}}
+    <h3>Recommendations</h3>
     <ul>
       {{#each analysis.recommendations}}
-        <li>{{this}}</li>
+      <li>{{this}}</li>
       {{/each}}
     </ul>
+    {{/if}}
   </div>
 
-  <footer>
-    <p><strong>Created By:</strong> {{metadata.createdBy}}</p>
-    <p><strong>Created At:</strong> {{metadata.createdAt}}</p>
-  </footer>
+  <div class="report-footer">
+    <p>Generated by: {{metadata.createdBy}} | {{metadata.createdAt}}</p>
+  </div>
 </body>
 </html>
