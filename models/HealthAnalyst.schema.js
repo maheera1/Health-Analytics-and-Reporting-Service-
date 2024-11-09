@@ -93,16 +93,12 @@ const treatmentOutcomeSchema = new mongoose.Schema({
     ref: 'Patient', // ref to pateint schema
     required: true,
   },
-  treatmentId: {
-    type: String,
-    required: true,
-  },
   diagnosis: String,
   treatment: {
-    name: String,
-    startDate: Date,
-    endDate: Date,
-    type: String,
+    name: { type: String, required: true },
+    startDate: { type: Date, required: true },
+    endDate: { type: Date, required: true },
+    type: { type: String, required: true },
   },
   outcomes: {
     preMetrics: mongoose.Schema.Types.Mixed,
