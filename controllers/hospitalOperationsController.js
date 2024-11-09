@@ -138,64 +138,210 @@ export const generateHospitalOperationsReport = async (data) => {
   }
 };
 
-//adds data to .html template
+//temmplate comtain conditions, loops etc. this helper function removes such and add actual report data using regex
 const reportReplaceHelper = (data, html) => {
-  html = html.replace('{{title}}', data.title || '');
-  html = html.replace('{{description}}', data.description || '');
-  html = html.replace('{{dateRange.startDate}}', data.dateRange?.startDate || '')
-      .replace('{{dateRange.endDate}}', data.dateRange?.endDate || '');
-  html = html.replace('{{department}}', data.department || '');
-  html = html.replace('{{metrics.admissions}}', data.metrics?.admissions || '')
-      .replace('{{metrics.discharges}}', data.metrics?.discharges || '')
-      .replace('{{metrics.bedOccupancy}}', data.metrics?.bedOccupancy || '')
-      .replace('{{metrics.averageLOS}}', data.metrics?.averageLOS || '')
-      .replace('{{metrics.emergencyVisits}}', data.metrics?.emergencyVisits || '')
-      .replace('{{metrics.surgeries}}', data.metrics?.surgeries || '');
-  html = html.replace('{{staffing.doctorsOnDuty}}', data.staffing?.doctorsOnDuty || '')
-      .replace('{{staffing.nursesOnDuty}}', data.staffing?.nursesOnDuty || '')
-      .replace('{{staffing.supportStaff}}', data.staffing?.supportStaff || '');
-  html = html.replace('{{metadata.createdBy}}', data.metadata?.createdBy || '')
-      .replace('{{metadata.createdAt}}', data.metadata?.createdAt || '');
-  html = html.replace('{{status}}', data.status || '');
-  if (data.resources?.equipmentUtilization) {
-    let equipmentHtml = '<table><tr><th>Equipment</th><th>Utilization (%)</th></tr>';
-    for (const [equipment, utilization] of Object.entries(data.resources.equipmentUtilization)) {
-    equipmentHtml += `<tr><td>${equipment}</td><td>${utilization}</td></tr>`
-    }
-    equipmentHtml += '</table>'
-    html = html.replace('{{Equipment Utilization}}', equipmentHtml);
+  // Replace basic fields first
+  html = html
+    .replace(/{{title}}/g, data.title || '')
+    .replace(/{{description}}/g, data.description || '')
+    .replace(/{{department}}/g, data.department || '');
+
+  // Replace date range
+  if (data.dateRange) {
+    html = html
+      .replace(/{{dateRange\.startDate}}/g, data.dateRange.startDate || '')
+      .replace(/{{dateRange\.endDate}}/g, data.dateRange.endDate || '');
   }
 
-  // Handle medicine inventory
-  // if (data.resources?.medicineInventory) {
-  // let inventoryHtml = '';
-  // for (const [item, status] of Object.entries(data.resources.medicineInventory)) {
-  // inventoryHtml += `${item}       ${status}\n`;
-  // }
-  // html = html.replace('{{#each resources.medicineInventory}}{{/each}}', inventoryHtml);
-  // }
+  // Handle medicine inventory section
+  if (data.resources?.medicineInventory) {
+    const inventorySection = `
+      <div class="metric-card">
+        <h2>Medicine Inventory Status</h2>
+        <table>
+          <tr>
+            <th>Item</th>
+            <th>Status</th>
+          </tr>
+          ${Object.entries(data.resources.medicineInventory)
+            .map(([item, status]) => `
+              <tr>
+                <td>${item}</td>
+                <td>${status}</td>
+              </tr>`)
+            .join('')}
+        </table>
+      </div>`;
+    
+    // Replace the entire conditional section
+    html = html.replace(
+      /\{\{#if resources\.medicineInventory\}\}[\s\S]*?\{\{\/if\}\}/g,
+      inventorySection
+    );
+  } else {
+    // Remove the conditional section if no inventory data
+    html = html.replace(
+      /\{\{#if resources\.medicineInventory\}\}[\s\S]*?\{\{\/if\}\}/g,
+      ''
+    );
+  }
 
-  // // Handle critical alerts
-  // if (data.resources?.criticalAlerts?.length) {
-  // const alertsHtml = data.resources.criticalAlerts.map(alert => `* ${alert}`).join('\n');
-  // html = html.replace('{{#each resources.criticalAlerts}}       * {{this}}       {{/each}}', alertsHtml);
-  // }
+  if (data.resources?.equipmentUtilization) {
+    const equipmentSection = `
+      <div class="metric-card">
+        <h2>Machine Inventory</h2>
+        <table>
+          <tr>
+            <th>Item</th>
+            <th>Status</th>
+          </tr>
+          ${Object.entries(data.resources.equipmentUtilization)
+            .map(([item, status]) => `
+              <tr>
+                <td>${item}</td>
+                <td>${status}</td>
+              </tr>`)
+            .join('')}
+        </table>
+      </div>`;
+    html = html.replace(
+      /\{\{#if Equipment Utilization\}\}[\s\S]*?\{\{Equipment Utilization\}\}[\s\S]*?\{\{\/if\}\}/g,
+      equipmentSection
+    );
+  } else {
+    html = html.replace(
+      /\{\{#if Equipment Utilization\}\}[\s\S]*?\{\{\/if\}\}/g,
+      ''
+    );
+  }
 
-  // // Handle analysis sections
-  // if (data.analysis?.trends) {
-  // const trendsHtml = data.analysis.trends.map(trend => `* ${trend}`).join('\n');
-  // html = html.replace('{{#each analysis.trends}}     * {{this}}     {{/each}}', trendsHtml);
-  // }
+  // Handle critical alerts
+  if (data.resources?.criticalAlerts?.length) {
+    const alertsSection = `
+      <div class="alert">
+        <h3>Critical Alerts</h3>
+        <ul>
+          ${data.resources.criticalAlerts
+            .map(alert => `<li>${alert}</li>`)
+            .join('')}
+        </ul>
+      </div>`;
+    
+    html = html.replace(
+      /\{\{#if resources\.criticalAlerts\.length\}\}[\s\S]*?\{\{\/if\}\}/g,
+      alertsSection
+    );
+  } else {
+    html = html.replace(
+      /\{\{#if resources\.criticalAlerts\.length\}\}[\s\S]*?\{\{\/if\}\}/g,
+      ''
+    );
+  }
 
-  // if (data.analysis?.bottlenecks) {
-  // const bottlenecksHtml = data.analysis.bottlenecks.map(bottleneck => `* ${bottleneck}`).join('\n');
-  // html = html.replace('{{#each analysis.bottlenecks}}     * {{this}}     {{/each}}', bottlenecksHtml);
-  // }
+  // Handle analysis sections (trends, bottlenecks, recommendations)
+  const analysisTypes = ['trends', 'bottlenecks', 'recommendations'];
+  analysisTypes.forEach(type => {
+    if (data.analysis?.[type]?.length) {
+      const sectionHtml = `
+        <h3>${type.charAt(0).toUpperCase() + type.slice(1)}</h3>
+        <ul>
+          ${data.analysis[type]
+            .map(item => `<li>${item}</li>`)
+            .join('')}
+        </ul>`;
+      
+      // Replace each section's conditional block
+      const sectionRegex = new RegExp(
+        `\\{\\{#if analysis\\.${type}\\}\\}[\\s\\S]*?\\{\\{#each analysis\\.${type}\\}\\}[\\s\\S]*?\\{\\{\/each\\}\\}[\\s\\S]*?\\{\\{\/if\\}\\}`,
+        'g'
+      );
+      html = html.replace(sectionRegex, sectionHtml);
+    } else {
+      // Remove the section if no data
+      const sectionRegex = new RegExp(
+        `\\{\\{#if analysis\\.${type}\\}\\}[\\s\\S]*?\\{\\{\/if\\}\\}`,
+        'g'
+      );
+      html = html.replace(sectionRegex, '');
+    }
+  });
 
-  // if (data.analysis?.recommendations) {
-  // const recommendationsHtml = data.analysis.recommendations.map(rec => `* ${rec}`).join('\n');
-  // html = html.replace('{{#each analysis.recommendations}}     * {{this}}     {{/each}}', recommendationsHtml);
-  // }
+  // hanlde metrics table
+  const metricsConfig = [
+    { key: 'admissions', label: 'Admissions' },
+    { key: 'discharges', label: 'Discharges' },
+    { key: 'bedOccupancy', label: 'Bed Occupancy', suffix: '%' },
+    { key: 'averageLOS', label: 'Average LOS', suffix: ' days' },
+    { key: 'emergencyVisits', label: 'Emergency Visits' },
+    { key: 'surgeries', label: 'Surgeries' }
+  ];
 
-  return html
-}
+  metricsConfig.forEach(({ key, label, suffix = '' }) => {
+    if (data.metrics?.[key] !== undefined) {
+      const metricRow = `
+        <tr>
+          <td>${label}</td>
+          <td>${data.metrics[key]}${suffix}</td>
+        </tr>`;
+      
+      const metricRegex = new RegExp(
+        `\\{\\{#if metrics\\.${key}\\}\\}[\\s\\S]*?\\{\\{\/if\\}\\}`,
+        'g'
+      );
+      html = html.replace(metricRegex, metricRow);
+    } else {
+      const metricRegex = new RegExp(
+        `\\{\\{#if metrics\\.${key}\\}\\}[\\s\\S]*?\\{\\{\/if\\}\\}`,
+        'g'
+      );
+      html = html.replace(metricRegex, '');
+    }
+  });
+
+  // handle staffing table
+  const staffingConfig = [
+    { key: 'doctorsOnDuty', label: 'Doctors on Duty' },
+    { key: 'nursesOnDuty', label: 'Nurses on Duty' },
+    { key: 'supportStaff', label: 'Support Staff' }
+  ];
+
+  staffingConfig.forEach(({ key, label }) => {
+    if (data.staffing?.[key] !== undefined) {
+      const staffRow = `
+        <tr>
+          <td>${label}</td>
+          <td>${data.staffing[key]}</td>
+        </tr>`;
+      
+      const staffRegex = new RegExp(
+        `\\{\\{#if staffing\\.${key}\\}\\}[\\s\\S]*?\\{\\{\/if\\}\\}`,
+        'g'
+      );
+      html = html.replace(staffRegex, staffRow);
+    } else {
+      const staffRegex = new RegExp(
+        `\\{\\{#if staffing\\.${key}\\}\\}[\\s\\S]*?\\{\\{\/if\\}\\}`,
+        'g'
+      );
+      html = html.replace(staffRegex, '');
+    }
+  });
+
+  // Replace metadata
+  if (data.metadata) {
+    html = html
+      .replace(/{{metadata\.createdBy}}/g, data.metadata.createdBy || '')
+      .replace(/{{metadata\.createdAt}}/g, data.metadata.createdAt || '');
+  }
+
+  // Clean up any remaining Handlebars syntax
+  html = html
+    .replace(/\{\{#each[\s\S]*?\}\}/g, '')
+    .replace(/\{\{[@\/]each\}\}/g, '')
+    .replace(/\{\{#if[\s\S]*?\}\}/g, '')
+    .replace(/\{\{\/if\}\}/g, '')
+    .replace(/\{\{[^}]+\}\}/g, '');
+
+  return html;
+};
+
