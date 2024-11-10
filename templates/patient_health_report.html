@@ -131,10 +131,23 @@
       </div>
       <div class="header-right">
         <p><strong>Patient ID</strong><br>{{patient.id}}</p>
-        <p><strong>Age</strong><br>{{patient.age}} years</p>
         <p><strong>Gender</strong><br>{{patient.gender}}</p>
+        <p><strong>Date of Birth</strong><br>{{patient.dateOfBirth}}</p>
+        <p><strong>Blood Type</strong><br>{{patient.bloodType}}</p>
       </div>
     </div>
+  </div>
+
+  <div class="section metric-card">
+    <h2>Contact Information</h2>
+    <p><strong>Phone:</strong> {{patient.contactInfo.phone}}</p>
+    <p><strong>Email:</strong> {{patient.contactInfo.email}}</p>
+    <p><strong>Address:</strong> {{patient.contactInfo.address}}</p>
+  </div>
+
+  <div class="section metric-card">
+    <h2>Primary Care Doctor</h2>
+    <p>{{patient.primaryCareDoctor}}</p>
   </div>
 
   <div class="section metric-card">

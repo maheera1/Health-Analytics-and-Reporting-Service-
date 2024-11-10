@@ -4,6 +4,19 @@ import { createError } from './errorTypes.js';
 // Define the validation schema for PatientHealth report
 const patientHealthSchema = Joi.object({
   patientId: Joi.string().required(),
+  
+  // Optional patient details
+  patientName: Joi.string().optional(),
+  patientAge: Joi.number().optional(),
+  patientGender: Joi.string().valid('Male', 'Female', 'Other').optional(),
+  bloodType: Joi.string().valid('A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-').optional(),
+  primaryCareDoctor: Joi.string().optional(),
+  contactInfo: Joi.object({
+    phone: Joi.string().optional(),
+    email: Joi.string().optional(),
+    address: Joi.string().optional()
+  }).optional(),
+  
   vitals: Joi.array().items(
     Joi.object({
       timestamp: Joi.date().required(),
@@ -17,6 +30,7 @@ const patientHealthSchema = Joi.object({
       weight: Joi.number().min(0).required(),
     })
   ).required(),
+
   labResults: Joi.array().items(
     Joi.object({
       testName: Joi.string().required(),
@@ -25,28 +39,32 @@ const patientHealthSchema = Joi.object({
       referenceRange: Joi.string().allow(null, ''),
       timestamp: Joi.date().required(),
     })
-  ),
+  ).optional(),
+
   summary: Joi.string().required(),
   title: Joi.string().required(),
+
   dateRange: Joi.object({
     startDate: Joi.date().required(),
     endDate: Joi.date().required()
   }).required(),
+
   metadata: Joi.object({
     createdBy: Joi.string().required(),
     createdAt: Joi.date().required(),
   }).required(),
+
   exportFormat: Joi.string().valid('PDF', 'CSV', 'EXCEL', 'JSON').required()
 });
 
 // Middleware to validate request body against a Joi schema
 export const validateRequest = (schema) => (req, _res, next) => {
-    const { error } = schema.validate(req.body);
-    if (error) {
-      const message = error.details.map(detail => detail.message).join(', ');
-      return next(createError(400, message));
-    }
-    next();
+  const { error } = schema.validate(req.body);
+  if (error) {
+    const message = error.details.map(detail => detail.message).join(', ');
+    return next(createError(400, message));
+  }
+  next();
 };
 
 // Export validatePatientHealthRequest middleware

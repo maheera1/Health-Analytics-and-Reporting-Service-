@@ -5,6 +5,8 @@ import { createError } from '../middleware/errorTypes.js';
 import { PatientHealthReport } from "../models/HealthAnalyst.schema.js";
 import { generatePDF } from '../utils/generatePDF.js';
 import Patient from '../models/Patient.schema.js';
+import { generatePatientHealthPDF } from '../utils/generatePDF.js';
+
 
 
 // Get all Patient Health reports
@@ -24,17 +26,57 @@ export const getAllPatientHealthReports = async (req, res, next) => {
 
 // Create a new Patient Health report
 export const createPatientHealthReport = asyncHandler(async (req, res) => {
-  const { patientId, vitals, labResults, summary, title, dateRange, metadata, exportFormat } = req.body;
+  const {
+    patientId,
+    patientName,
+    patientAge,
+    patientGender,
+    bloodType,
+    primaryCareDoctor,
+    contactInfo,
+    vitals,
+    labResults,
+    summary,
+    title,
+    dateRange,
+    metadata,
+    exportFormat
+  } = req.body;
 
-  // Log the incoming request body
+  // Log the incoming request data
   console.log("Received data to create report:", req.body);
 
   // Validate required fields
-  if (!patientId || !vitals || !summary || !title || !dateRange || !metadata || !exportFormat) {
+  if (!patientId || !patientName || !patientAge || !patientGender || !vitals || !summary || !title || !dateRange || !metadata || !exportFormat) {
     throw createError(400, 'Please provide all required fields');
   }
 
-  // Create a new report in the database
+  // Prepare data for PDF generation, using patient details from the request
+  const pdfData = {
+    patient: {
+      id: patientId,
+      name: patientName,
+      age: patientAge,
+      gender: patientGender,
+      bloodType: bloodType || "N/A",
+      primaryCareDoctor: primaryCareDoctor || "Not Available",
+      contactInfo: {
+        phone: contactInfo?.phone || "Not Available",
+        email: contactInfo?.email || "Not Available",
+        address: contactInfo?.address || "Not Available"
+      }
+    },
+    diagnosis: summary,
+    medications: req.body.medications || [], // Use medications if provided
+    labResults,
+    criticalAlerts: req.body.criticalAlerts || [], // Use alerts if provided
+    metadata,
+  };
+
+  // Generate PDF report with all data
+  await generatePatientHealthPDF(pdfData);
+
+  // Create the health report record in the database
   const newReport = await PatientHealthReport.create({
     patientId,
     vitals,
@@ -46,12 +88,8 @@ export const createPatientHealthReport = asyncHandler(async (req, res) => {
     exportFormat
   });
 
-  // Log the created report data
-  console.log("Report created successfully:", newReport);
-
   res.status(201).json({ success: true, data: newReport });
 });
-
 
 // Get a single Patient Health report by ID
 export const getPatientHealthReportById = asyncHandler(async (req, res, next) => {
