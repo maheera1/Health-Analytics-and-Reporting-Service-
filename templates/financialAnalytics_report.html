@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Financial Analytics Report</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #1a365d;
+      --secondary-color: #2b6cb0;
+      --success-color: #38a169;
+      --warning-color: #d69e2e;
+      --danger-color: #e53e3e;
+      --text-color: #2d3748;
+      --border-color: #e2e8f0;
+      --background-light: #f7fafc;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      line-height: 1.6;
+      color: var(--text-color);
+      background-color: white;
+      width: 210mm;
+      min-height: 297mm;
+      margin: 0 auto;
+      padding: 20mm;
+      font-size: 11pt;
+    }
+
+    .report-header {
+      border-bottom: 2px solid var(--secondary-color);
+      margin-bottom: 1.5rem;
+      padding-bottom: 1.5rem;
+    }
+
+    .header-content {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .header-left {
+      flex: 2;
+    }
+
+    .header-right {
+      flex: 1;
+      text-align: right;
+      font-size: 0.9rem;
+    }
+
+    .report-title {
+      color: var(--primary-color);
+      font-size: 1.8rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .report-subtitle {
+      color: var(--secondary-color);
+      font-size: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .metrics-section {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+      break-inside: avoid;
+    }
+
+    .metric-card {
+      background: var(--background-light);
+      padding: 1.2rem;
+      border-radius: 4px;
+      break-inside: avoid;
+    }
+
+    .metric-card h2 {
+      color: var(--primary-color);
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      background: white;
+    }
+
+    th, td {
+      padding: 0.6rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    td.amount {
+      text-align: right;
+      font-family: monospace;
+    }
+
+    td.positive {
+      color: var(--success-color);
+    }
+
+    td.negative {
+      color: var(--danger-color);
+    }
+
+    th {
+      background-color: white;
+      color: var(--primary-color);
+      font-weight: 600;
+    }
+
+    .total-row {
+      font-weight: 600;
+      background-color: var(--background-light);
+    }
+
+    .analysis-section {
+      margin: 2rem 0;
+      break-before: page;
+      padding-top: 1rem;
+    }
+
+    .analysis-section h2 {
+      color: var(--primary-color);
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      font-weight: 600;
+    }
+
+    .insurance-metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin: 1.5rem 0;
+    }
+
+    .insurance-metric {
+      background: var(--background-light);
+      padding: 1rem;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .insurance-metric .value {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--secondary-color);
+      margin: 0.5rem 0;
+    }
+
+    .insurance-metric .label {
+      font-size: 0.8rem;
+      color: var(--text-color);
+    }
+
+    .recommendations {
+      background: var(--background-light);
+      padding: 1.5rem;
+      border-radius: 4px;
+      margin-top: 2rem;
+    }
+
+    .recommendations h3 {
+      color: var(--secondary-color);
+      margin-bottom: 1rem;
+    }
+
+    .recommendations ul {
+      margin-left: 1.5rem;
+    }
+
+    .recommendations li {
+      margin-bottom: 0.5rem;
+    }
+
+    .report-footer {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+      font-size: 0.8rem;
+      color: #666;
+      text-align: right;
+    }
+
+    @media print {
+      body {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .page-break {
+        break-before: page;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="report-header">
+    <div class="header-content">
+      <div class="header-left">
+        <h1 class="report-title">{{title}}</h1>
+        <p class="report-subtitle">Financial Analytics Report</p>
+      </div>
+      <div class="header-right">
+        <p><strong>Date Range</strong><br>{{dateRange.startDate}} - {{dateRange.endDate}}</p>
+        <p><strong>Department</strong><br>{{department}}</p>
+        <p><strong>Status</strong><br>{{status}}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="metrics-section">
+    <div class="metric-card">
+      <h2>Revenue Breakdown</h2>
+      <table>
+        <tr>
+          <th>Category</th>
+          <th>Amount</th>
+        </tr>
+        <tr>
+          <td>Consultations</td>
+          <td class="amount">${{revenue.breakdown.consultations}}</td>
+        </tr>
+        <tr>
+          <td>Procedures</td>
+          <td class="amount">${{revenue.breakdown.procedures}}</td>
+        </tr>
+        <tr>
+          <td>Pharmacy</td>
+          <td class="amount">${{revenue.breakdown.pharmacy}}</td>
+        </tr>
+        <tr>
+          <td>Laboratory</td>
+          <td class="amount">${{revenue.breakdown.laboratory}}</td>
+        </tr>
+        <tr class="total-row">
+          <td>Total Revenue</td>
+          <td class="amount">${{revenue.total}}</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="metric-card">
+      <h2>Expenses Breakdown</h2>
+      <table>
+        <tr>
+          <th>Category</th>
+          <th>Amount</th>
+        </tr>
+        <tr>
+          <td>Staffing</td>
+          <td class="amount">${{expenses.breakdown.staffing}}</td>
+        </tr>
+        <tr>
+          <td>Supplies</td>
+          <td class="amount">${{expenses.breakdown.supplies}}</td>
+        </tr>
+        <tr>
+          <td>Maintenance</td>
+          <td class="amount">${{expenses.breakdown.maintenance}}</td>
+        </tr>
+        <tr>
+          <td>Utilities</td>
+          <td class="amount">${{expenses.breakdown.utilities}}</td>
+        </tr>
+        <tr class="total-row">
+          <td>Total Expenses</td>
+          <td class="amount">${{expenses.total}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="insurance-metrics">
+    <div class="insurance-metric">
+      <div class="value">{{insurance.claimsSubmitted}}</div>
+      <div class="label">Claims Submitted</div>
+    </div>
+    <div class="insurance-metric">
+      <div class="value">{{insurance.claimsProcessed}}</div>
+      <div class="label">Claims Processed</div>
+    </div>
+    <div class="insurance-metric">
+      <div class="value">{{insurance.claimsPending}}</div>
+      <div class="label">Claims Pending</div>
+    </div>
+    <div class="insurance-metric">
+      <div class="value">{{insurance.averageProcessingTime}}d</div>
+      <div class="label">Avg. Processing Time</div>
+    </div>
+  </div>
+
+  <div class="analysis-section">
+    <h2>Financial Analysis</h2>
+    <div class="metric-card">
+      <h2>Key Metrics</h2>
+      <table>
+        <tr>
+          <th>Metric</th>
+          <th>Value</th>
+        </tr>
+        <tr>
+          <td>Profit Margin</td>
+          <td class="amount">{{analysis.profitMargin}}%</td>
+        </tr>
+        <tr>
+          <td>Revenue per Patient</td>
+          <td class="amount">${{analysis.keyMetrics.revenuePerPatient}}</td>
+        </tr>
+        <tr>
+          <td>Cost per Patient</td>
+          <td class="amount">${{analysis.keyMetrics.costPerPatient}}</td>
+        </tr>
+        <tr>
+          <td>Claims Success Rate</td>
+          <td class="amount">{{analysis.keyMetrics.claimsSuccessRate}}%</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="recommendations">
+      <h3>Recommendations</h3>
+      <ul>
+        {{#each analysis.recommendations}}
+        <li>{{this}}</li>
+        {{/each}}
+      </ul>
+    </div>
+  </div>
+
+  <div class="report-footer">
+    <p>Generated by: {{metadata.createdBy}} | Generated on: {{metadata.createdAt}}</p>
+    {{#if metadata.modifiedBy}}
+    <p>Last modified by: {{metadata.modifiedBy}} | Modified on: {{metadata.modifiedAt}}</p>
+    {{/if}}
+  </div>
+</body>
+</html>
