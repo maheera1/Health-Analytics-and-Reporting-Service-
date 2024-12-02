@@ -36,7 +36,8 @@ export const getTemporalAnalytics = asyncHandler(async (req, res) => {
       discharges: report.metrics.discharges,
       bedOccupancy: report.metrics.bedOccupancy,
       emergencyVisits: report.metrics.emergencyVisits,
-      surgeries: report.metrics.surgeries
+      surgeries: report.metrics.surgeries,
+      averageLOS: report.metrics.averageLOS
     }
   }));
 
