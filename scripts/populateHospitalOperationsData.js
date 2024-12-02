@@ -109,36 +109,66 @@ const generateReport = (baseDate, department) => {
   };
 };
 
+
 const populateData = async () => {
-  try {
-    await mongoose.connect("mongodb://127.0.0.1:27017/HealthAnalytics");
-    console.log('Connected to MongoDB');
-
-    // Clear existing data
-    await HospitalOperationsReport.deleteMany({});
-
-    // Generate 6 months of data for each department
-    const startDate = new Date('2023-10-01');
-    const reports = [];
-
-    departments.forEach(department => {
-      for (let i = 0; i < 6; i++) {
-        const baseDate = new Date(startDate);
-        baseDate.setMonth(baseDate.getMonth() + i);
-        reports.push(generateReport(baseDate, department));
+    try {
+      await mongoose.connect("mongodb://127.0.0.1:27017/HealthAnalytics");
+      console.log('Connected to MongoDB');
+  
+      await HospitalOperationsReport.deleteMany({});
+  
+      const reports = [];
+      const startDate = new Date('2024-01-01');
+      const endDate = new Date('2024-12-01');
+      
+      // Create 10-day periods
+      const datePeriods = [];
+      let currentDate = new Date(startDate);
+      
+      while (currentDate < endDate) {
+        const periodStart = new Date(currentDate);
+        const periodEnd = new Date(currentDate);
+        periodEnd.setDate(periodEnd.getDate() + 9); // 10 day periods
+        
+        // Generate one consolidated report per period
+        const report = {
+          reportType: 'HOSPITAL_OPERATIONS',
+          title: `Hospital Operations Summary`,
+          description: `Analysis of operational metrics for ${periodStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric' })} to ${periodEnd.toLocaleDateString('en-US', { month: 'long', year: 'numeric', day: 'numeric' })}`,
+          dateRange: {
+            startDate: periodStart,
+            endDate: periodEnd
+          },
+          department: 'All Departments',
+          metrics: generateMetrics(),
+          staffing: generateStaffing(),
+          resources: generateResources('Emergency'), // using Emergency as base for equipment
+          analysis: generateAnalysis(),
+          metadata: {
+            createdBy: 'System Generator',
+            createdAt: new Date(),
+          },
+          status: ['DRAFT', 'FINALIZED', 'PENDING_REVIEW'][Math.floor(Math.random() * 3)],
+          exportFormat: ['PDF', 'EXCEL', 'CSV'][Math.floor(Math.random() * 3)]
+        };
+        
+        reports.push(report);
+        
+        // Move to next period
+        currentDate.setDate(currentDate.getDate() + 10);
       }
-    });
-
-    await HospitalOperationsReport.insertMany(reports);
-    console.log(`Successfully inserted ${reports.length} reports`);
-
-    await mongoose.disconnect();
-    console.log('Disconnected from MongoDB');
-
-  } catch (error) {
-    console.error('Error:', error);
-    process.exit(1);
-  }
-};
-
-populateData();
+  
+      await HospitalOperationsReport.insertMany(reports);
+      console.log(`Successfully inserted ${reports.length} reports`);
+      console.log(`Generated one report per 10-day period from Jan to Dec 2024`);
+  
+      await mongoose.disconnect();
+      console.log('Disconnected from MongoDB');
+  
+    } catch (error) {
+      console.error('Error:', error);
+      process.exit(1);
+    }
+  };
+  
+  populateData();

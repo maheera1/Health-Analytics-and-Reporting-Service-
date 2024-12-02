@@ -2,38 +2,50 @@
 import { asyncHandler } from '../middleware/asyncHandler.js';
 import { HospitalOperationsReport } from '../models/HealthAnalyst.schema.js';
 
+// controllers/temporalAnalyticsController.js
 export const getTemporalAnalytics = asyncHandler(async (req, res) => {
-    const { startDate, endDate, department } = req.query;
+  const { startDate, endDate, department } = req.query;
+  
+  // Convert dates to start/end of day
+  const end = endDate 
+    ? new Date(new Date(endDate).setHours(23, 59, 59, 999))
+    : new Date(new Date().setHours(23, 59, 59, 999));
     
-    // Default to last 7 days if no dates provided
-    const end = endDate ? new Date(endDate) : new Date();
-    const start = startDate ? new Date(startDate) : new Date(end - 7 * 24 * 60 * 60 * 1000);
-  
-    // Validate dates
-    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid date format. Please use ISO format (YYYY-MM-DD)'
-      });
+  const start = startDate 
+    ? new Date(new Date(startDate).setHours(0, 0, 0, 0))
+    : new Date(new Date(end).setDate(end.getDate() - 7));
+
+  const query = {
+    'dateRange.startDate': { $gte: start },
+    'dateRange.endDate': { $lte: end }
+  };
+
+  if (department) {
+    query.department = department;
+  }
+
+
+  const reports = await HospitalOperationsReport.find(query)
+    .sort({ 'dateRange.startDate': 1 });
+
+  // Format response data
+  const formattedData = reports.map(report => ({
+    date: report.dateRange.startDate,
+    metrics: {
+      admissions: report.metrics.admissions,
+      discharges: report.metrics.discharges,
+      bedOccupancy: report.metrics.bedOccupancy,
+      emergencyVisits: report.metrics.emergencyVisits,
+      surgeries: report.metrics.surgeries
     }
-  
-    const query = {
-      'dateRange.startDate': { $gte: start },
-      'dateRange.endDate': { $lte: end }
-    };
-  
-    if (department) {
-      query.department = department;
-    }
-  
-    const reports = await HospitalOperationsReport.find(query)
-      .sort({ 'dateRange.startDate': 1 });
-  
-    res.json({
-      success: true,
-      data: reports
-    });
+  }));
+
+
+  res.json({
+    success: true,
+    data: formattedData
   });
+});
 
 // Get patterns by time of day
 export const getDailyPatterns = asyncHandler(async (req, res) => {
@@ -53,3 +65,43 @@ export const getDailyPatterns = asyncHandler(async (req, res) => {
     data: reports
   });
 });
+
+
+// aggregated metrics
+export const getAggregatedMetrics = asyncHandler(async (req, res) => {
+    const { startDate, endDate, department } = req.query;
+    
+    const query = {
+      'dateRange.startDate': { 
+        $gte: new Date(startDate), 
+        $lte: new Date(endDate) 
+      }
+    };
+  
+    if (department) query.department = department;
+  
+    const aggregatedData = await HospitalOperationsReport.aggregate([
+      { $match: query },
+      {
+        $group: {
+          _id: {
+            year: { $year: "$dateRange.startDate" },
+            month: { $month: "$dateRange.startDate" },
+            day: { $dayOfMonth: "$dateRange.startDate" }
+          },
+          totalAdmissions: { $sum: "$metrics.admissions" },
+          totalDischarges: { $sum: "$metrics.discharges" },
+          avgBedOccupancy: { $avg: "$metrics.bedOccupancy" },
+          totalEmergencyVisits: { $sum: "$metrics.emergencyVisits" },
+          totalSurgeries: { $sum: "$metrics.surgeries" }
+        }
+      },
+      { $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } }
+    ]);
+
+    console.log("aggregatedData", aggregatedData)
+    res.json({
+      success: true,
+      data: aggregatedData
+    });
+  });
