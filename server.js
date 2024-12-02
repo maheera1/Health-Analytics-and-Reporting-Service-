@@ -10,6 +10,7 @@ import hospitalOperationsRoutes from "./routes/hospitalOperationsRoutes.js"
 import treatmentOutcomeRoutes from "./routes/treatmenOutcomeRoutes.js"
 import patientRoutes from "./routes/patientRoutes.js"
 import patientHealthRoutes from "./routes/patientHealthRoutes.js";
+import temporalAnalyticsRoutes from "./routes/temporalAnalyticsRoutes.js";
 
 
 dotenv.config();
@@ -34,7 +35,8 @@ app.use('/api/reports/', hospitalOperationsRoutes);
 app.use('/api/treatmentOutcome/', treatmentOutcomeRoutes);
 app.use('/api/', patientRoutes)
 app.use('/api/reports/', patientHealthRoutes);
-
+// analytics routes
+app.use('/api/analytics/', temporalAnalyticsRoutes);
 
 //handling unknown routes other than defined
 
