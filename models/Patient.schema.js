@@ -13,6 +13,22 @@ const patientHealthSchema = new mongoose.Schema({
   bloodType: { type: String, enum: ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'] },
   primaryCareDoctor: { type: mongoose.Schema.Types.ObjectId, ref: 'Doctor' },
   
+  diagnosis: {
+    type: String,
+    required: true,
+    enum: [
+      'Hypertension',
+      'Diabetes',
+      'Asthma',
+      'Arthritis',
+      'Heart Disease',
+      'COPD',
+      'Depression',
+      'Anxiety',
+      'Cancer',
+      'Other'
+    ]
+  },
 }, { timestamps: true });
 
 const Patient = mongoose.model('Patient', patientHealthSchema);

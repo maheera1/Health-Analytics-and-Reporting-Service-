@@ -39,13 +39,25 @@ const generateRandomLabResults = () =>
 const generatePatient = () => ({
   name: faker.person.fullName(),
   dateOfBirth: faker.date.past({ years: 70, refDate: new Date(2005, 0, 1) }),
-  gender: faker.helpers.arrayElement(['Male', 'Female', 'Other']),
+  gender: faker.helpers.arrayElement(['Male', 'Female']),
   contactInfo: {
     phone: faker.phone.number(),
     email: faker.internet.email(),
     address: faker.location.streetAddress()
   },
-  bloodType: faker.helpers.arrayElement(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+  bloodType: faker.helpers.arrayElement(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
+  diagnosis: faker.helpers.arrayElement([
+    'Hypertension',
+    'Diabetes',
+    'Asthma',
+    'Arthritis',
+    'Heart Disease',
+    'COPD',
+    'Depression',
+    'Anxiety',
+    'Cancer',
+    'Other'
+  ]),
 });
 
 // scripts/populatePatientHealthData.js
@@ -55,6 +67,7 @@ const generateHealthReport = (patientId) => {
     const startDate = faker.date.recent();
     const endDate = faker.date.soon({ days: 30, refDate: startDate }); // Generate end date within 30 days of start date
   
+    
     return {
       reportType: 'PATIENT_HEALTH',
       title: 'Regular Health Checkup',

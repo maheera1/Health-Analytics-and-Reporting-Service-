@@ -73,3 +73,111 @@ export const getVitalsDistribution = asyncHandler(async (req, res) => {
     data: vitalsStats[0]
   });
 });
+
+
+// Get disease distribution
+// controllers/populationHealthController.js
+export const getDiseaseDistribution = asyncHandler(async (req, res) => {
+  const diseaseStats = await PatientHealthReport.aggregate([
+    {
+      $lookup: {
+        from: 'patients',
+        localField: 'patientId',
+        foreignField: '_id',
+        as: 'patient'
+      }
+    },
+    { $unwind: '$patient' },
+    {
+      $group: {
+        _id: '$patient.diagnosis', // Changed from '$diagnosis' to '$patient.diagnosis'
+        count: { $sum: 1 },
+        avgAge: {
+          $avg: {
+            $divide: [
+              { $subtract: [new Date(), '$patient.dateOfBirth'] },
+              31557600000 // milliseconds in year
+            ]
+          }
+        },
+        maleCount: {
+          $sum: { $cond: [{ $eq: ['$patient.gender', 'Male'] }, 1, 0] }
+        },
+        femaleCount: {
+          $sum: { $cond: [{ $eq: ['$patient.gender', 'Female'] }, 1, 0] }
+        },
+        otherCount: {
+          $sum: { $cond: [{ $eq: ['$patient.gender', 'Other'] }, 1, 0] }
+        }
+      }
+    },
+    {
+      $project: {
+        count: 1,
+        avgAge: 1,
+        genderDistribution: {
+          male: '$maleCount',
+          female: '$femaleCount',
+          other: '$otherCount'
+        }
+      }
+    },
+    {
+      $match: {
+        _id: { $ne: null } // Filter out null diagnoses
+      }
+    }
+  ]);
+
+  res.json({
+    success: true,
+    data: diseaseStats
+  });
+});
+
+// Get demographic patterns
+export const getDemographicPatterns = asyncHandler(async (req, res) => {
+  const patterns = await PatientHealthReport.aggregate([
+    {
+      $lookup: {
+        from: 'patients',
+        localField: 'patientId',
+        foreignField: '_id',
+        as: 'patient'
+      }
+    },
+    { $unwind: '$patient' },
+    { $unwind: '$vitals' },
+    {
+      $group: {
+        _id: '$patient.bloodType',
+        count: { $sum: 1 },
+        avgSystolic: { $avg: '$vitals.bloodPressure.systolic' },
+        avgDiastolic: { $avg: '$vitals.bloodPressure.diastolic' },
+        avgBloodSugar: { $avg: '$vitals.bloodSugar' },
+        conditions: { $addToSet: '$diagnosis' }
+      }
+    },
+    {
+      $project: {
+        count: 1,
+        avgBloodPressure: {
+          systolic: '$avgSystolic',
+          diastolic: '$avgDiastolic'
+        },
+        avgBloodSugar: 1,
+        conditions: 1
+      }
+    },
+    {
+      $match: {
+        _id: { $ne: null }
+      }
+    }
+  ]);
+
+  res.json({
+    success: true,
+    data: patterns
+  });
+});
