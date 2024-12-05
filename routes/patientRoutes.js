@@ -1,10 +1,15 @@
-import express from 'express';
-import { createPatient } from '../controllers/patientController.js';
+import express from "express";
+import {
+  getAllPatients,
+  createPatient,
+} from "../controllers/patientController.js";
 
 const router = express.Router();
 
-// router.get('/users', getAllUsers);
-router.post('/patients', createPatient);
-// router.get('/users/:id', getUserById);
+// Route to fetch all patients
+router.get("/patients", getAllPatients);
+
+// Route to create a new patient
+router.post("/patients", createPatient);
 
 export default router;
