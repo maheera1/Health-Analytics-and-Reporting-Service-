@@ -2,7 +2,9 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import { fileURLToPath } from 'url';
 import path from 'path';
+import fs from 'fs';
 import { requestLogger } from './middleware/requestLogger.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import { createError } from './middleware/errorTypes.js';
@@ -13,6 +15,9 @@ import patientRoutes from "./routes/patientRoutes.js"
 import patientHealthRoutes from "./routes/patientHealthRoutes.js";
 import temporalAnalyticsRoutes from "./routes/temporalAnalyticsRoutes.js";
 import populatoinHealthRoutes from "./routes/populationHealthRoutes.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 dotenv.config();
 
@@ -40,38 +45,35 @@ app.use('/api/reports/', patientHealthRoutes);
 app.use('/api/analytics/', temporalAnalyticsRoutes);
 app.use('/api/analytics/', populatoinHealthRoutes);
 
-// Download Route
 app.get('/api/reports/download/:type/:id', async (req, res) => {
   const { type, id } = req.params;
 
   try {
-    const folderMap = {
-      patientHealth: 'generated-reports/patientHealth',
-      hospitalOperations: 'generated-reports/hospitalOperations',
-    };
-
-    const folderPath = folderMap[type];
-    if (!folderPath) {
-      return res.status(400).json({ error: 'Invalid report type' });
-    }
-
-    const filePath = path.join(__dirname, folderPath, `${id}.pdf`);
+    const fileName = `Patient_Health_Report_${id}.pdf`;
+    const filePath = path.join(__dirname, 'pdf_output', fileName);
 
     if (!fs.existsSync(filePath)) {
-      return res.status(404).json({ error: 'Report not found' });
+      console.error(`File not found at: ${filePath}`);
+      return res.status(404).json({ error: `File not found: ${filePath}` });
     }
 
-    res.download(filePath, `${type}_report_${id}.pdf`, (err) => {
-      if (err) {
-        console.error('Error while sending file:', err);
-        res.status(500).send('Error downloading file');
-      }
+    // Log the headers being sent
+    console.log("Sending file with headers:", {
+      "Content-Type": "application/pdf",
+      "Content-Disposition": `inline; filename="${fileName}"`,
     });
+
+    // Set headers and stream the file
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${fileName}"`);
+    const fileStream = fs.createReadStream(filePath);
+    fileStream.pipe(res);
   } catch (error) {
     console.error('Error handling download:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 // Handling unknown routes
 app.all('*', (_req, _res, next) => {
