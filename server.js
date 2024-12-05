@@ -45,11 +45,28 @@ app.use('/api/reports/', patientHealthRoutes);
 app.use('/api/analytics/', temporalAnalyticsRoutes);
 app.use('/api/analytics/', populatoinHealthRoutes);
 
-app.get('/api/reports/download/:type/:id', async (req, res) => {
+app.get('/api/reports/download/:type/:id?', async (req, res) => {
   const { type, id } = req.params;
 
   try {
-    const fileName = `Patient_Health_Report_${id}.pdf`;
+    let fileName;
+
+    // Determine the file name based on the report type
+    if (type === 'patientHealth') {
+      if (!id) {
+        return res.status(400).json({ error: 'ID is required for patientHealth reports' });
+      }
+      fileName = `Patient_Health_Report_${id}.pdf`;
+    } else if (type === 'hospitalOperations') {
+      fileName = `Hospital_Operations_Report.pdf`;
+    } else if (type === 'treatmentOutcome') {
+      fileName = `Treatment_Outcome_Report.pdf`;
+    } else if (type === 'financialAnalytics') {
+      fileName = `Financial_Analytics_Report.pdf`;
+    } else {
+      return res.status(400).json({ error: 'Invalid report type' });
+    }
+
     const filePath = path.join(__dirname, 'pdf_output', fileName);
 
     if (!fs.existsSync(filePath)) {
@@ -73,6 +90,7 @@ app.get('/api/reports/download/:type/:id', async (req, res) => {
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
 
 
 // Handling unknown routes
